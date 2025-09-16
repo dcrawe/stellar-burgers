@@ -5,11 +5,15 @@ import { RegisterUI } from '@ui-pages';
 import { registerUserApi } from '@api';
 import { setCookie } from '@utils/cookie';
 import { fetchUser } from '@slices/userSlice';
+import { useForm } from '../../hooks/useForm';
 
 export const Register: FC = () => {
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { values, handleChange } = useForm({
+    userName: '',
+    email: '',
+    password: ''
+  });
+  const { userName, email, password } = values;
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -43,9 +47,7 @@ export const Register: FC = () => {
       email={email}
       userName={userName}
       password={password}
-      setEmail={setEmail}
-      setPassword={setPassword}
-      setUserName={setUserName}
+      handleChange={handleChange}
       handleSubmit={handleSubmit}
     />
   );

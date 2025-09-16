@@ -5,10 +5,11 @@ import { LoginUI } from '@ui-pages';
 import { loginUserApi } from '@api';
 import { setCookie } from '@utils/cookie';
 import { fetchUser } from '@slices/userSlice';
+import { useForm } from '../../hooks/useForm';
 
 export const Login: FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { values, handleChange } = useForm({ email: '', password: '' });
+  const { email, password } = values;
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,9 +46,8 @@ export const Login: FC = () => {
     <LoginUI
       errorText={error}
       email={email}
-      setEmail={setEmail}
       password={password}
-      setPassword={setPassword}
+      handleChange={handleChange}
       handleSubmit={handleSubmit}
     />
   );
