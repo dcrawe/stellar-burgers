@@ -35,20 +35,12 @@ const initialState: OrdersState = {
 
 export const fetchFeeds = createAsyncThunk<TOrdersData>(
   'orders/fetchFeeds',
-  async () => {
-    const data = await getFeedsApi();
-
-    return data;
-  }
+  getFeedsApi
 );
 
 export const fetchUserOrders = createAsyncThunk<TOrder[]>(
   'orders/fetchUserOrders',
-  async () => {
-    const orders = await getOrdersApi();
-
-    return orders;
-  }
+  getOrdersApi
 );
 
 export const createOrder = createAsyncThunk<TOrder, string[]>(
