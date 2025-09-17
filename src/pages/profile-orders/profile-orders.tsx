@@ -10,9 +10,7 @@ export const ProfileOrders: FC = () => {
   const orders: TOrder[] = useSelector(selectProfileOrders);
 
   useEffect(() => {
-    if (!orders.length) {
-      dispatch(fetchUserOrders());
-    }
+    dispatch(fetchUserOrders());
   }, [dispatch]);
 
   return <ProfileOrdersUI orders={orders} />;
