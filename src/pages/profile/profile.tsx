@@ -7,24 +7,35 @@ import { useForm } from '../../hooks/useForm';
 
 export const Profile: FC = () => {
   const dispatch = useDispatch();
-  const user = useSelector(selectUser) || { name: '', email: '' };
+  const user = useSelector(selectUser);
   const { values, handleChange, setValues } = useForm({
-    name: user.name,
-    email: user.email,
+    name: user?.name ?? '',
+    email: user?.email ?? '',
     password: ''
   });
 
   useEffect(() => {
-    setValues((prev) => ({
-      ...prev,
-      name: user?.name || '',
-      email: user?.email || ''
-    }));
-  }, [user, setValues]);
+    if (!user) return;
+
+    setValues((prev) => {
+      if (
+        prev.name === (user.name ?? '') &&
+        prev.email === (user.email ?? '')
+      ) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        name: user.name ?? '',
+        email: user.email ?? ''
+      };
+    });
+  }, [user?.name, user?.email, setValues]);
 
   const isFormChanged =
-    values.name !== user?.name ||
-    values.email !== user?.email ||
+    values.name !== (user?.name ?? '') ||
+    values.email !== (user?.email ?? '') ||
     !!values.password;
 
   const handleSubmit = (e: SyntheticEvent) => {
@@ -32,8 +43,8 @@ export const Profile: FC = () => {
 
     const payload: { name?: string; email?: string; password?: string } = {};
 
-    if (values.name !== user?.name) payload.name = values.name;
-    if (values.email !== user?.email) payload.email = values.email;
+    if (values.name !== (user?.name ?? '')) payload.name = values.name;
+    if (values.email !== (user?.email ?? '')) payload.email = values.email;
     if (values.password) payload.password = values.password;
     if (Object.keys(payload).length) {
       dispatch(updateUser(payload));
@@ -42,9 +53,10 @@ export const Profile: FC = () => {
 
   const handleCancel = (e: SyntheticEvent) => {
     e.preventDefault();
+
     setValues({
-      name: user.name,
-      email: user.email,
+      name: user?.name ?? '',
+      email: user?.email ?? '',
       password: ''
     });
   };
