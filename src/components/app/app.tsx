@@ -22,21 +22,28 @@ import {
   ProfileOrders,
   NotFound404
 } from '@pages';
-import { useDispatch } from '@services/store';
+import { useDispatch, useSelector } from '@services/store';
 import { fetchUser } from '@slices/userSlice';
 import { getCookie } from '@utils/cookie';
+import { selectIngredients } from '@selectors/ingredients';
+import { fetchIngredients } from '@slices/ingredientsSlice';
 
 const App = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+  const allIngredients = useSelector(selectIngredients);
+
   const state = location.state as { background?: Location } | undefined;
 
   useEffect(() => {
     if (getCookie('accessToken')) {
       dispatch(fetchUser());
     }
-  }, [dispatch]);
+    if (!allIngredients.length) {
+      dispatch(fetchIngredients());
+    }
+  }, [dispatch, allIngredients.length]);
 
   const handleCloseModal = () => navigate(-1);
 
