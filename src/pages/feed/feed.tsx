@@ -15,9 +15,7 @@ export const Feed: FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!orders.length) {
-      dispatch(fetchFeeds());
-    }
+    dispatch(fetchFeeds());
   }, [dispatch]);
 
   if (isLoading || !orders.length) {
