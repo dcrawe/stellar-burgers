@@ -1,26 +1,53 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getUserApi, updateUserApi, TRegisterData } from '@api';
 import { TUser } from '@utils-types';
+import type { RootState } from '@services/store';
 
 export type UserState = {
   user: TUser | null;
   isAuthChecked: boolean;
   isLoading: boolean;
   error: string | null;
+  lastLoadedAt: number | null;
 };
 
 const initialState: UserState = {
   user: null,
   isAuthChecked: false,
   isLoading: false,
-  error: null
+  error: null,
+  lastLoadedAt: null
 };
 
-export const fetchUser = createAsyncThunk<TUser>('user/fetchUser', async () => {
-  const data = await getUserApi();
+let userRequestLock = false;
+let userLastStartAt = 0;
+const USER_COOLDOWN_MS = 1500;
 
-  return data.user;
-});
+export const fetchUser = createAsyncThunk<TUser, void, { state: RootState }>(
+  'user/fetchUser',
+  async () => {
+    const data = await getUserApi();
+    return data.user;
+  },
+  {
+    condition: (_: void, { getState }) => {
+      if (userRequestLock) return false;
+
+      const now = Date.now();
+
+      if (now - userLastStartAt < USER_COOLDOWN_MS) return false;
+
+      const { isLoading } = getState().user;
+
+      if (isLoading) return false;
+
+      userRequestLock = true;
+      userLastStartAt = now;
+
+      return true;
+    }
+  }
+);
 
 export const updateUser = createAsyncThunk<TUser, Partial<TRegisterData>>(
   'user/updateUser',
@@ -52,11 +79,14 @@ const userSlice = createSlice({
         state.user = action.payload;
         state.isAuthChecked = true;
         state.isLoading = false;
+        state.lastLoadedAt = Date.now();
+        userRequestLock = false;
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.isLoading = false;
         state.isAuthChecked = true; // even if failed, we've checked
         state.error = action.error.message || 'Ошибка загрузки пользователя';
+        userRequestLock = false;
       })
       .addCase(updateUser.pending, (state) => {
         state.isLoading = true;

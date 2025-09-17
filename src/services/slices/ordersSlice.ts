@@ -6,6 +6,7 @@ import {
   getOrderByNumberApi
 } from '@api';
 import { TOrder, TOrdersData } from '@utils-types';
+import type { RootState } from '@services/store';
 
 export type OrdersState = {
   feed: {
@@ -14,6 +15,7 @@ export type OrdersState = {
     totalToday: number;
     isLoading: boolean;
     error: string | null;
+    lastLoadedAt: number | null;
   };
   profile: {
     orders: TOrder[];
@@ -26,17 +28,35 @@ export type OrdersState = {
 };
 
 const initialState: OrdersState = {
-  feed: { orders: [], total: 0, totalToday: 0, isLoading: false, error: null },
+  feed: {
+    orders: [],
+    total: 0,
+    totalToday: 0,
+    isLoading: false,
+    error: null,
+    lastLoadedAt: null
+  },
   profile: { orders: [], isLoading: false, error: null },
   orderRequest: false,
   orderModalData: null,
   currentOrder: null
 };
 
-export const fetchFeeds = createAsyncThunk<TOrdersData>(
-  'orders/fetchFeeds',
-  getFeedsApi
-);
+export const fetchFeeds = createAsyncThunk<
+  TOrdersData,
+  void,
+  { state: RootState }
+>('orders/fetchFeeds', getFeedsApi, {
+  condition: (_: void, { getState }) => {
+    const { feed } = getState().orders;
+
+    if (feed.isLoading) return false;
+
+    const coolDownMs = 1000;
+
+    return !(feed.lastLoadedAt && Date.now() - feed.lastLoadedAt < coolDownMs);
+  }
+});
 
 export const fetchUserOrders = createAsyncThunk<TOrder[]>(
   'orders/fetchUserOrders',
@@ -82,6 +102,7 @@ const ordersSlice = createSlice({
           state.feed.orders = action.payload.orders;
           state.feed.total = action.payload.total;
           state.feed.totalToday = action.payload.totalToday;
+          state.feed.lastLoadedAt = Date.now();
           state.feed.isLoading = false;
         }
       )
