@@ -16,6 +16,12 @@ describe('Страница конструктора бургеров', () => {
       cy.contains('button', 'Добавить').click();
     });
 
+    cy.get('section[class*="burger_constructor"]').within(() => {
+      cy.contains('Булка N1 (верх)').should('be.visible');
+      cy.contains('Булка N1 (низ)').should('be.visible');
+      cy.contains('li', 'Котлета').should('be.visible');
+    });
+
     cy.contains('Оформить заказ').should('be.enabled');
   });
 
@@ -38,6 +44,10 @@ describe('Страница конструктора бургеров', () => {
 
     cy.contains('li', 'Соус X').find('a').click();
     cy.contains('h3', 'Детали ингредиента').should('be.visible');
+
+    cy.get('section[class*="burger_constructor"]').within(() => {
+      cy.contains('li', 'Соус X').should('be.visible');
+    });
 
     cy.get('div[class*="overlay"]').click({ force: true });
     cy.contains('h3', 'Детали ингредиента').should('not.exist');
