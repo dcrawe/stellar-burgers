@@ -16,7 +16,7 @@ describe('Страница конструктора бургеров', () => {
       cy.contains('button', 'Добавить').click();
     });
 
-    cy.get('section[class*="burger_constructor"]').within(() => {
+    cy.get('[data-testid="burger-constructor"]').within(() => {
       cy.contains('Булка N1 (верх)').should('be.visible');
       cy.contains('Булка N1 (низ)').should('be.visible');
       cy.contains('li', 'Котлета').should('be.visible');
@@ -29,28 +29,31 @@ describe('Страница конструктора бургеров', () => {
     cy.visit('/');
     cy.wait('@getIngredients');
 
+    cy.contains('li', 'Соус X').within(() => {
+      cy.contains('button', 'Добавить').click();
+    });
+
+    cy.get('[data-testid="burger-constructor"]').within(() => {
+      cy.contains('li', 'Соус X').should('be.visible');
+    });
+
     cy.contains('li', 'Соус X').find('a').click();
 
     cy.contains('h3', 'Детали ингредиента').should('be.visible');
     cy.contains('.text_type_main-default', 'Соус X').should('be.visible');
 
-    cy.get('div')
-      .filter((_, el) => (el.textContent || '').includes('Детали ингредиента'))
-      .parents()
-      .find('button')
-      .first()
-      .click({ force: true });
+    cy.get('button[aria-label="Закрыть модальное окно"]').click({ force: true });
     cy.contains('h3', 'Детали ингредиента').should('not.exist');
 
     cy.contains('li', 'Соус X').find('a').click();
     cy.contains('h3', 'Детали ингредиента').should('be.visible');
 
-    cy.get('section[class*="burger_constructor"]').within(() => {
+    cy.get('[data-testid="modal-overlay"]').click({ force: true });
+    cy.contains('h3', 'Детали ингредиента').should('not.exist');
+
+    cy.get('[data-testid="burger-constructor"]').within(() => {
       cy.contains('li', 'Соус X').should('be.visible');
     });
-
-    cy.get('div[class*="overlay"]').click({ force: true });
-    cy.contains('h3', 'Детали ингредиента').should('not.exist');
   });
 
   it('создаёт заказ: открывает модальное окно заказа с корректным номером и очищает конструктор', () => {

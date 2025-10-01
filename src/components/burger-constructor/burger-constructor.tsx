@@ -24,10 +24,18 @@ export const BurgerConstructor: FC = () => {
   const orderModalData = useSelector(selectOrderModalData);
 
   const onOrderClick = () => {
+    if (orderModalData) {
+      dispatch(clearOrderModal());
+      dispatch(clearConstructor());
+
+      return;
+    }
+
     const isAuthenticated = Boolean(getCookie('accessToken'));
 
     if (!isAuthenticated) {
       navigate('/login', { replace: true, state: { from: location } });
+
       return;
     }
     if (!constructorItems.bun || orderRequest) return;
