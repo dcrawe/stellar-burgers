@@ -1,3 +1,6 @@
+import { SELECTORS } from '../support/selectors';
+import { TEXTS } from '../support/texts';
+
 describe('Страница конструктора бургеров', () => {
   beforeEach(() => {
     cy.intercept('GET', '**/ingredients', { fixture: 'ingredients.json' }).as(
@@ -9,50 +12,50 @@ describe('Страница конструктора бургеров', () => {
     cy.visit('/');
     cy.wait('@getIngredients');
 
-    cy.contains('li', 'Булка N1').within(() => {
-      cy.contains('button', 'Добавить').click();
+    cy.contains('li', TEXTS.bunN1).within(() => {
+      cy.contains('button', TEXTS.addButton).click();
     });
-    cy.contains('li', 'Котлета').within(() => {
-      cy.contains('button', 'Добавить').click();
-    });
-
-    cy.get('[data-testid="burger-constructor"]').within(() => {
-      cy.contains('Булка N1 (верх)').should('be.visible');
-      cy.contains('Булка N1 (низ)').should('be.visible');
-      cy.contains('li', 'Котлета').should('be.visible');
+    cy.contains('li', TEXTS.patty).within(() => {
+      cy.contains('button', TEXTS.addButton).click();
     });
 
-    cy.contains('Оформить заказ').should('be.enabled');
+    cy.get(SELECTORS.burgerConstructor).within(() => {
+      cy.contains(TEXTS.bunTop).should('be.visible');
+      cy.contains(TEXTS.bunBottom).should('be.visible');
+      cy.contains('li', TEXTS.patty).should('be.visible');
+    });
+
+    cy.contains(TEXTS.placeOrder).should('be.enabled');
   });
 
   it('открывает модальное окно ингредиента и закрывает его кнопкой закрытия и кликом по оверлею', () => {
     cy.visit('/');
     cy.wait('@getIngredients');
 
-    cy.contains('li', 'Соус X').within(() => {
-      cy.contains('button', 'Добавить').click();
+    cy.contains('li', TEXTS.sauceX).within(() => {
+      cy.contains('button', TEXTS.addButton).click();
     });
 
-    cy.get('[data-testid="burger-constructor"]').within(() => {
-      cy.contains('li', 'Соус X').should('be.visible');
+    cy.get(SELECTORS.burgerConstructor).within(() => {
+      cy.contains('li', TEXTS.sauceX).should('be.visible');
     });
 
-    cy.contains('li', 'Соус X').find('a').click();
+    cy.contains('li', TEXTS.sauceX).find('a').click();
 
-    cy.contains('h3', 'Детали ингредиента').should('be.visible');
-    cy.contains('.text_type_main-default', 'Соус X').should('be.visible');
+    cy.contains('h3', TEXTS.ingredientDetailsTitle).should('be.visible');
+    cy.contains('.text_type_main-default', TEXTS.sauceX).should('be.visible');
 
-    cy.get('button[aria-label="Закрыть модальное окно"]').click({ force: true });
-    cy.contains('h3', 'Детали ингредиента').should('not.exist');
+    cy.get(SELECTORS.modalCloseButton).click({ force: true });
+    cy.contains('h3', TEXTS.ingredientDetailsTitle).should('not.exist');
 
-    cy.contains('li', 'Соус X').find('a').click();
-    cy.contains('h3', 'Детали ингредиента').should('be.visible');
+    cy.contains('li', TEXTS.sauceX).find('a').click();
+    cy.contains('h3', TEXTS.ingredientDetailsTitle).should('be.visible');
 
-    cy.get('[data-testid="modal-overlay"]').click({ force: true });
-    cy.contains('h3', 'Детали ингредиента').should('not.exist');
+    cy.get(SELECTORS.modalOverlay).click({ force: true });
+    cy.contains('h3', TEXTS.ingredientDetailsTitle).should('not.exist');
 
-    cy.get('[data-testid="burger-constructor"]').within(() => {
-      cy.contains('li', 'Соус X').should('be.visible');
+    cy.get(SELECTORS.burgerConstructor).within(() => {
+      cy.contains('li', TEXTS.sauceX).should('be.visible');
     });
   });
 
@@ -67,28 +70,28 @@ describe('Страница конструктора бургеров', () => {
       'createOrder'
     );
 
-    cy.contains('li', 'Булка N1').within(() => {
-      cy.contains('button', 'Добавить').click();
+    cy.contains('li', TEXTS.bunN1).within(() => {
+      cy.contains('button', TEXTS.addButton).click();
     });
-    cy.contains('li', 'Котлета').within(() => {
-      cy.contains('button', 'Добавить').click();
+    cy.contains('li', TEXTS.patty).within(() => {
+      cy.contains('button', TEXTS.addButton).click();
     });
 
-    cy.contains('button', 'Оформить заказ').click();
+    cy.contains('button', TEXTS.placeOrder).click();
 
     cy.wait('@createOrder');
 
-    cy.contains('h3', 'Информация о заказе').should('be.visible');
-    cy.contains('424242').should('be.visible');
+    cy.contains('h3', TEXTS.orderInfoTitle).should('be.visible');
+    cy.contains(TEXTS.orderNumber).should('be.visible');
 
     cy.get('div')
-      .filter((_, el) => (el.textContent || '').includes('Информация о заказе'))
+      .filter((_, el) => (el.textContent || '').includes(TEXTS.orderInfoTitle))
       .parents()
       .find('button')
       .first()
       .click({ force: true });
 
-    cy.contains('h3', 'Информация о заказе').should('not.exist');
-    cy.contains('button', 'Оформить заказ').should('be.disabled');
+    cy.contains('h3', TEXTS.orderInfoTitle).should('not.exist');
+    cy.contains('button', TEXTS.placeOrder).should('be.disabled');
   });
 });
