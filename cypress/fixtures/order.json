@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "name": "Order Name",
+  "order": {
+    "_id": "order123",
+    "status": "done",
+    "name": "Order Name",
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z",
+    "number": 424242,
+    "ingredients": ["bun-1", "main-1", "sauce-1"]
+  }
+}

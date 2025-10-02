@@ -21,6 +21,10 @@
   min-height: 64px;
 }
 
+.title {
+  margin: 0;
+}
+
 .button {
   display: flex;
   width: 24px;
