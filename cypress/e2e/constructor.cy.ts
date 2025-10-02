@@ -12,12 +12,8 @@ describe('Страница конструктора бургеров', () => {
     cy.visit('/');
     cy.wait('@getIngredients');
 
-    cy.contains('li', TEXTS.bunN1).within(() => {
-      cy.contains('button', TEXTS.addButton).click();
-    });
-    cy.contains('li', TEXTS.patty).within(() => {
-      cy.contains('button', TEXTS.addButton).click();
-    });
+    cy.addIngredientToConstructor(TEXTS.bunN1);
+    cy.addIngredientToConstructor(TEXTS.patty);
 
     cy.get(SELECTORS.burgerConstructor).within(() => {
       cy.contains(TEXTS.bunTop).should('be.visible');
@@ -25,38 +21,31 @@ describe('Страница конструктора бургеров', () => {
       cy.contains('li', TEXTS.patty).should('be.visible');
     });
 
-    cy.contains(TEXTS.placeOrder).should('be.enabled');
+    cy.contains('button', TEXTS.placeOrder).should('be.enabled');
   });
 
   it('открывает модальное окно ингредиента и закрывает его кнопкой закрытия и кликом по оверлею', () => {
     cy.visit('/');
     cy.wait('@getIngredients');
 
-    cy.contains('li', TEXTS.sauceX).within(() => {
-      cy.contains('button', TEXTS.addButton).click();
-    });
-
-    cy.get(SELECTORS.burgerConstructor).within(() => {
-      cy.contains('li', TEXTS.sauceX).should('be.visible');
-    });
+    cy.addIngredientToConstructor(TEXTS.sauceX);
+    cy.verifyIngredientInConstructor(TEXTS.sauceX);
 
     cy.contains('li', TEXTS.sauceX).find('a').click();
 
     cy.contains('h3', TEXTS.ingredientDetailsTitle).should('be.visible');
     cy.contains('.text_type_main-default', TEXTS.sauceX).should('be.visible');
 
-    cy.get(SELECTORS.modalCloseButton).click({ force: true });
+    cy.closeModalByButton();
     cy.contains('h3', TEXTS.ingredientDetailsTitle).should('not.exist');
 
     cy.contains('li', TEXTS.sauceX).find('a').click();
     cy.contains('h3', TEXTS.ingredientDetailsTitle).should('be.visible');
 
-    cy.get(SELECTORS.modalOverlay).click({ force: true });
+    cy.closeModalByOverlay();
     cy.contains('h3', TEXTS.ingredientDetailsTitle).should('not.exist');
 
-    cy.get(SELECTORS.burgerConstructor).within(() => {
-      cy.contains('li', TEXTS.sauceX).should('be.visible');
-    });
+    cy.verifyIngredientInConstructor(TEXTS.sauceX);
   });
 
   it('создаёт заказ: открывает модальное окно заказа с корректным номером и очищает конструктор', () => {
@@ -70,14 +59,10 @@ describe('Страница конструктора бургеров', () => {
       'createOrder'
     );
 
-    cy.contains('li', TEXTS.bunN1).within(() => {
-      cy.contains('button', TEXTS.addButton).click();
-    });
-    cy.contains('li', TEXTS.patty).within(() => {
-      cy.contains('button', TEXTS.addButton).click();
-    });
+    cy.addIngredientToConstructor(TEXTS.bunN1);
+    cy.addIngredientToConstructor(TEXTS.patty);
 
-    cy.contains('button', TEXTS.placeOrder).click();
+    cy.contains('button', TEXTS.placeOrder).should('be.enabled').click();
 
     cy.wait('@createOrder');
 
@@ -89,7 +74,8 @@ describe('Страница конструктора бургеров', () => {
       .parents()
       .find('button')
       .first()
-      .click({ force: true });
+      .should('be.visible')
+      .click();
 
     cy.contains('h3', TEXTS.orderInfoTitle).should('not.exist');
     cy.contains('button', TEXTS.placeOrder).should('be.disabled');
